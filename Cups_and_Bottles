@@ -1,0 +1,61 @@
+class Deque:
+    def __init__(self):
+        self.items = []
+
+    def is_empty(self):
+        return self.items == []
+
+    def append(self, item):
+        self.items.append(item)
+
+    def appendleft(self, item):
+        self.items.insert(0,item)
+
+    def pop(self):
+        return self.items.pop()
+
+    def popleft(self):
+        return self.items.pop(0)
+
+    def size(self):
+        return len(self.items)
+
+    def as_list(self):
+        return self.items
+
+    def peek(self):
+        return self.items[-1]
+
+
+cups = Deque()
+ccc = list(map(int, input().split()))
+[cups.appendleft(x) for x in ccc]
+
+bottles = Deque()
+bbb = list(map(int, input().split()))
+[bottles.append(x) for x in bbb]
+
+wasted_water = 0
+
+while not bottles.is_empty() and not cups.is_empty():
+    picked_bottle = bottles.pop()
+
+    if picked_bottle >= cups.peek():
+        picked_bottle -= cups.pop()
+        wasted_water += picked_bottle
+    else:
+        cups.append(cups.pop() - picked_bottle)
+
+if not bottles.is_empty():
+    bbb = f'Bottles:'
+    while not bottles.is_empty():
+        bbb += ' ' + str(bottles.popleft())
+    print(bbb)
+elif not cups.is_empty():
+    bbb = f'Cups:'
+    while not cups.is_empty():
+        bbb += ' ' + str(cups.pop())
+    print(bbb)
+
+
+print(f'Wasted litters of water: {wasted_water}')
