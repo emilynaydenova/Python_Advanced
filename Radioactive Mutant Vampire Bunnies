@@ -1,0 +1,96 @@
+def move_p(direction, pi, pj):   # pi,pj - current position of P
+    status_of_p = 'live'
+    old_pi = pi
+    old_pj = pj
+    # next position of 'P'
+    if direction == 'U':  # up
+        pi -= 1
+    elif direction == 'D':   # down
+        pi += 1
+    elif direction == 'L':   # left
+        pj -= 1
+    elif direction == 'R':  # right
+        pj += 1
+
+    a[old_pi][old_pj] = '.'   # escaped position of P
+
+    if not(0 <= pi < n and 0 <= pj < m):
+        status_of_p = 'free'
+        pi = old_pi    # the last cell where P has been before escaping
+        pj = old_pj
+    else:              # new position of P
+        if a[pi][pj] == '.':
+            a[pi][pj] = 'P'
+        elif a[pi][pj] == 'B':
+            status_of_p = 'dead'
+    return status_of_p, pi, pj
+
+
+def spread_b(bi, bj):   # B-coordinates
+    status_of_p = 'live'
+    pi = pj = 0  # dead cell with 'P'
+    row_increment = [-1, 0, 0, 1]
+    col_increment = [0, -1, 1, 0]
+
+    for idx in range(4):
+        cell_row = bi + row_increment[idx]
+        cell_col = bj + col_increment[idx]
+        if 0 <= cell_row < n and 0 <= cell_col < m:
+            if a[cell_row][cell_col] == '.':
+                a[cell_row][cell_col] = 'b'
+            elif a[cell_row][cell_col] == 'P':
+                a[cell_row][cell_col] = 'b'
+                pi = cell_row
+                pj = cell_col
+                status_of_p = 'dead'
+    return status_of_p, pi, pj
+
+
+def convert_b():
+    for ib in range(n):
+        for jb in range(m):
+            if a[ib][jb] == 'b':
+                a[ib][jb] = 'B'
+    return
+
+# ------- start program -------------
+
+
+n, m = map(int, (input().split()))
+a = []
+p_row = p_col = 0   # position of 'P'
+status_p = 'live'   # status of P
+
+for i in range(n):
+    line = [ch for ch in input()]
+    if 'P' in line:
+        p_row = i
+        p_col = line.index('P')
+    a.append(line)
+
+commands = [ch for ch in input()]  # moving of P  - L R U D
+for command in commands:
+    # moving of 'P' to the next position
+    status_p, p_row, p_col = move_p(command, p_row, p_col)
+
+    # spreading of 'B'
+    status_b = 'live'
+    b_row = b_col = 0
+    for i in range(n):
+        for j in range(m):
+            if a[i][j] == 'B':
+                status_b, b_row, b_col = spread_b(i, j)
+                if status_b == 'dead':
+                    status_p = 'dead'
+                    p_row = b_row
+                    p_col = b_col
+
+    convert_b()
+    if status_p in ['dead','free']:
+        for i in range(n):
+            print(''.join(a[i][j] for j in range(m)))
+        if status_p == 'dead':
+            print(f'dead: {p_row} {p_col}')
+        else:
+            print(f'won: {p_row} {p_col}')
+        break
